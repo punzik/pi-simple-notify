@@ -1,0 +1,31 @@
+{
+  "name": "pi-simple-notify",
+  "version": "0.1.0",
+  "description": "Pi extension that sends a notification when the agent finishes processing",
+  "license": "GPL-3.0-only",
+  "files": [
+    "extensions/",
+    "README.md",
+    "LICENSE"
+  ],
+  "keywords": [
+    "pi-package",
+    "pi-extension",
+    "notify",
+    "notification",
+    "notify-send"
+  ],
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/punzik/pi-simple-notify"
+  },
+  "pi": {
+    "extensions": [
+      "./extensions"
+    ]
+  },
+  "peerDependencies": {
+    "@mariozechner/pi-coding-agent": "*"
+  }
+}

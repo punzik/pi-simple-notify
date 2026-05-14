@@ -1,0 +1,6 @@
+{
+	"command": "notify-send",
+	"args": ["--app-name=Pi", "{title}", "{body}"],
+	"title": "Pi [{session}]",
+	"body": "Done — {cwd}"
+}
