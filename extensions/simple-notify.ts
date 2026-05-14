@@ -9,9 +9,7 @@
  * - ~/.pi/agent/simple-notify.config.json    (global)
  * - <cwd>/.pi/simple-notify.config.json      (project-local)
  *
- * Template placeholders available in args, title, and body:
- *   {title}   - notification title (args only, from rendered config title)
- *   {body}    - notification body (args only, from rendered config body)
+ * Template placeholders available in args:
  *   {session}    - current session name or "(unnamed)"
  *   {cwd}        - current working directory
  *   {configPath} - highest-priority existing config file path
@@ -20,9 +18,7 @@
  * ```json
  * {
  *   "command": "notify-send",
- *   "args": ["--app-name=Pi", "{title}", "{body}"],
- *   "title": "Pi",
- *   "body": "Done — your input is needed"
+ *   "args": ["--app-name=Pi", "Pi [{session}]", "Done — {cwd}"]
  * }
  * ```
  *
@@ -39,12 +35,8 @@ import { fileURLToPath } from "node:url";
 interface NotifyConfig {
 	/** Program to run. Default: "notify-send" */
 	command: string;
-	/** Arguments template. {title}, {body}, {session}, {cwd}, {configPath} are replaced. Default: ["--app-name=Pi", "{title}", "{body}"] */
+	/** Arguments template. {session}, {cwd}, {configPath} are replaced. Default: ["--app-name=Pi", "Pi [{session}]", "Done — {cwd}"] */
 	args: string[];
-	/** Title template. Default: "Pi [{session}]" */
-	title: string;
-	/** Body template. Default: "Done — {cwd}" */
-	body: string;
 }
 
 interface LoadedConfig {
@@ -58,9 +50,7 @@ const EXTENSION_DIR = dirname(fileURLToPath(import.meta.url));
 
 const BUILTIN_DEFAULT_CONFIG: NotifyConfig = {
 	command: "notify-send",
-	args: ["--app-name=Pi", "{title}", "{body}"],
-	title: "Pi [{session}]",
-	body: "Done — {cwd}",
+	args: ["--app-name=Pi", "Pi [{session}]", "Done — {cwd}"],
 };
 
 const loggedSpawnErrors = new Set<string>();
@@ -94,22 +84,6 @@ function parseConfig(value: unknown, path: string): Partial<NotifyConfig> {
 			config.args = value.args;
 		} else {
 			warnInvalidField(path, "args", "an array of strings");
-		}
-	}
-
-	if ("title" in value) {
-		if (typeof value.title === "string") {
-			config.title = value.title;
-		} else {
-			warnInvalidField(path, "title", "a string");
-		}
-	}
-
-	if ("body" in value) {
-		if (typeof value.body === "string") {
-			config.body = value.body;
-		} else {
-			warnInvalidField(path, "body", "a string");
 		}
 	}
 
@@ -162,20 +136,12 @@ function logSpawnError(command: string, err: unknown): void {
 }
 
 function sendNotification(config: NotifyConfig, sessionName: string, cwd: string, configPath: string): void {
-	const baseValues = {
+	const values = {
 		session: sessionName,
 		cwd,
 		configPath,
 	};
-	const title = renderTemplate(config.title, baseValues);
-	const body = renderTemplate(config.body, baseValues);
-	const args = config.args.map((arg) =>
-		renderTemplate(arg, {
-			...baseValues,
-			title,
-			body,
-		}),
-	);
+	const args = config.args.map((arg) => renderTemplate(arg, values));
 
 	try {
 		const child = spawn(config.command, args, {

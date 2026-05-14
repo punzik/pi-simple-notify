@@ -37,16 +37,12 @@ If no user config file exists, the defaults from [`simple-notify.config.json`](e
 | Field | Default | Description |
 |-------|---------|-------------|
 | `command` | `"notify-send"` | Program to execute |
-| `args` | `["--app-name=Pi", "{title}", "{body}"]` | Arguments. `{title}`, `{body}`, `{session}`, `{cwd}`, and `{configPath}` are replaced with actual values |
-| `title` | `"Pi [{session}]"` | Notification title |
-| `body` | `"Done — {cwd}"` | Notification body text |
+| `args` | `["--app-name=Pi", "Pi [{session}]", "Done — {cwd}"]` | Arguments. `{session}`, `{cwd}`, and `{configPath}` are replaced with actual values |
 
 ### Template variables
 
 | Variable | Description |
 |----------|-------------|
-| `{title}` | Rendered notification title; available in `args` |
-| `{body}` | Rendered notification body; available in `args` |
 | `{session}` | Current session name or `(unnamed)` |
 | `{cwd}` | Current working directory |
 | `{configPath}` | Highest-priority existing config file path |
@@ -58,9 +54,7 @@ If no user config file exists, the defaults from [`simple-notify.config.json`](e
 ```json
 {
   "command": "notify-send",
-  "args": ["--app-name=Pi", "{title}", "{body}"],
-  "title": "Pi [{session}]",
-  "body": "Done — {cwd}"
+  "args": ["--app-name=Pi", "Pi [{session}]", "Done — {cwd}"]
 }
 ```
 
@@ -69,9 +63,7 @@ If no user config file exists, the defaults from [`simple-notify.config.json`](e
 ```json
 {
   "command": "osascript",
-  "args": ["-e", "display notification \"{body}\" with title \"{title}\""],
-  "title": "Pi [{session}]",
-  "body": "Ready for input — {cwd}"
+  "args": ["-e", "display notification \"Ready for input — {cwd}\" with title \"Pi [{session}]\""]
 }
 ```
 
@@ -80,9 +72,7 @@ If no user config file exists, the defaults from [`simple-notify.config.json`](e
 ```json
 {
   "command": "sh",
-  "args": ["-c", "notify-send '{title}' '{body}' && paplay /usr/share/sounds/freedesktop/stereo/bell.oga"],
-  "title": "Pi [{session}]",
-  "body": "Done!"
+  "args": ["-c", "notify-send 'Pi [{session}]' 'Done!' && paplay /usr/share/sounds/freedesktop/stereo/bell.oga"]
 }
 ```
 
