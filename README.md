@@ -38,6 +38,7 @@ If no user config file exists, the defaults from [`simple-notify.config.json`](e
 
 | Field | Default | Description |
 |-------|---------|-------------|
+| `bell` | `false` | Write terminal BEL (`\x07`) when notification fires |
 | `command` | `"notify-send"` | Program to execute |
 | `args` | `["--app-name=Pi", "Pi [{session}]", "Done — {cwd}"]` | Arguments. `{session}`, `{cwd}`, and `{configPath}` are replaced with actual values |
 
@@ -55,8 +56,29 @@ If no user config file exists, the defaults from [`simple-notify.config.json`](e
 
 ```json
 {
+  "bell": false,
   "command": "notify-send",
   "args": ["--app-name=Pi", "Pi [{session}]", "Done — {cwd}"]
+}
+```
+
+**With terminal bell:**
+
+```json
+{
+  "bell": true,
+  "command": "notify-send",
+  "args": ["--app-name=Pi", "Pi [{session}]", "Done — {cwd}"]
+}
+```
+
+**Terminal bell only:**
+
+```json
+{
+  "bell": true,
+  "command": "true",
+  "args": []
 }
 ```
 
@@ -80,7 +102,7 @@ If no user config file exists, the defaults from [`simple-notify.config.json`](e
 
 ## How it works
 
-The extension subscribes to Pi's `agent_end` event, which fires once per user prompt when the agent loop completes. It spawns the configured command as a detached, fire-and-forget process so Pi is never blocked waiting for it.
+The extension subscribes to Pi's `agent_end` event, which fires once per user prompt when the agent loop completes. If `bell` is enabled, it writes BEL (`\x07`) to Pi's stdout before spawning the configured command as a detached, fire-and-forget process so Pi is never blocked waiting for it.
 
 ## Requirements
 

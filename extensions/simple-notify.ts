@@ -17,6 +17,7 @@
  * Example simple-notify.config.json:
  * ```json
  * {
+ *   "bell": true,
  *   "command": "notify-send",
  *   "args": ["--app-name=Pi", "Pi [{session}]", "Done — {cwd}"]
  * }
@@ -33,6 +34,8 @@ import { spawn } from "node:child_process";
 import { fileURLToPath } from "node:url";
 
 interface NotifyConfig {
+	/** Write terminal BEL (\x07) when notification fires. Default: false */
+	bell: boolean;
 	/** Program to run. Default: "notify-send" */
 	command: string;
 	/** Arguments template. {session}, {cwd}, {configPath} are replaced. Default: ["--app-name=Pi", "Pi [{session}]", "Done — {cwd}"] */
@@ -49,6 +52,7 @@ const CONFIG_FILE_NAME = "simple-notify.config.json";
 const EXTENSION_DIR = dirname(fileURLToPath(import.meta.url));
 
 const BUILTIN_DEFAULT_CONFIG: NotifyConfig = {
+	bell: false,
 	command: "notify-send",
 	args: ["--app-name=Pi", "Pi [{session}]", "Done — {cwd}"],
 };
@@ -70,6 +74,14 @@ function parseConfig(value: unknown, path: string): Partial<NotifyConfig> {
 	}
 
 	const config: Partial<NotifyConfig> = {};
+
+	if ("bell" in value) {
+		if (typeof value.bell === "boolean") {
+			config.bell = value.bell;
+		} else {
+			warnInvalidField(path, "bell", "a boolean");
+		}
+	}
 
 	if ("command" in value) {
 		if (typeof value.command === "string" && value.command.trim() !== "") {
@@ -135,6 +147,10 @@ function logSpawnError(command: string, err: unknown): void {
 	console.error(`[simple-notify] Failed to spawn "${command}": ${message}`);
 }
 
+function sendTerminalBell(): void {
+	process.stdout.write("\x07");
+}
+
 function sendNotification(config: NotifyConfig, sessionName: string, cwd: string, configPath: string): void {
 	const values = {
 		session: sessionName,
@@ -167,6 +183,9 @@ export default function (pi: ExtensionAPI) {
 	});
 
 	pi.on("agent_end", async () => {
+		if (loadedConfig.config.bell) {
+			sendTerminalBell();
+		}
 		sendNotification(loadedConfig.config, sessionName, cwd, loadedConfig.configPath);
 	});
 }
