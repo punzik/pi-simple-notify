@@ -26,9 +26,11 @@ Because config files are merged, the `{configPath}` template variable points to 
 
 | Path | Scope |
 |------|-------|
-| `extensions/simple-notify.config.json` | Packaged defaults |
+| `extensions/simple-notify.config.json` | Packaged defaults, next to the shipped extension file |
 | `~/.pi/agent/simple-notify.config.json` | Global (all projects) |
 | `<project>/.pi/simple-notify.config.json` | Project-local |
+
+`~` means your home directory, for example `/home/alice`.
 
 If no user config file exists, the defaults from [`simple-notify.config.json`](extensions/simple-notify.config.json) are used.
 
