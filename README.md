@@ -40,7 +40,7 @@ If no user config file exists, the defaults from [`simple-notify.config.json`](e
 |-------|---------|-------------|
 | `bell` | `false` | Write terminal BEL (`\x07`) when notification fires |
 | `command` | `"notify-send"` | Program to execute |
-| `args` | `["--app-name=Pi", "Pi [{session}]", "Done — {cwd}"]` | Arguments. `{session}`, `{cwd}`, and `{configPath}` are replaced with actual values |
+| `args` | `["--app-name=Pi", "Pi [{session}]", "{cwd}"]` | Arguments. `{session}`, `{cwd}`, and `{configPath}` are replaced with actual values |
 
 ### Template variables
 
@@ -58,7 +58,7 @@ If no user config file exists, the defaults from [`simple-notify.config.json`](e
 {
   "bell": false,
   "command": "notify-send",
-  "args": ["--app-name=Pi", "Pi [{session}]", "Done — {cwd}"]
+  "args": ["--app-name=Pi", "Pi [{session}]", "{cwd}"]
 }
 ```
 
@@ -68,7 +68,7 @@ If no user config file exists, the defaults from [`simple-notify.config.json`](e
 {
   "bell": true,
   "command": "notify-send",
-  "args": ["--app-name=Pi", "Pi [{session}]", "Done — {cwd}"]
+  "args": ["--app-name=Pi", "Pi [{session}]", "{cwd}"]
 }
 ```
 

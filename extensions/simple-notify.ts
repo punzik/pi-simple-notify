@@ -19,7 +19,7 @@
  * {
  *   "bell": true,
  *   "command": "notify-send",
- *   "args": ["--app-name=Pi", "Pi [{session}]", "Done — {cwd}"]
+ *   "args": ["--app-name=Pi", "Pi [{session}]", "{cwd}"]
  * }
  * ```
  *
@@ -38,7 +38,7 @@ interface NotifyConfig {
 	bell: boolean;
 	/** Program to run. Default: "notify-send" */
 	command: string;
-	/** Arguments template. {session}, {cwd}, {configPath} are replaced. Default: ["--app-name=Pi", "Pi [{session}]", "Done — {cwd}"] */
+	/** Arguments template. {session}, {cwd}, {configPath} are replaced. Default: ["--app-name=Pi", "Pi [{session}]", "{cwd}"] */
 	args: string[];
 }
 
@@ -54,7 +54,7 @@ const EXTENSION_DIR = dirname(fileURLToPath(import.meta.url));
 const BUILTIN_DEFAULT_CONFIG: NotifyConfig = {
 	bell: false,
 	command: "notify-send",
-	args: ["--app-name=Pi", "Pi [{session}]", "Done — {cwd}"],
+	args: ["--app-name=Pi", "Pi [{session}]", "{cwd}"],
 };
 
 const loggedSpawnErrors = new Set<string>();
