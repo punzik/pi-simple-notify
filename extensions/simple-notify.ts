@@ -17,6 +17,7 @@ interface NotifyConfig {
   bell: boolean;
   command: string;
   args: string[];
+  allowProjectCommand: boolean;
 }
 
 interface LoadedConfig {
@@ -31,6 +32,7 @@ const BUILTIN_DEFAULT_CONFIG: NotifyConfig = {
   bell: false,
   command: "notify-send",
   args: ["--app-name=Pi", "Pi [{session}]", "{cwd}"],
+  allowProjectCommand: false,
 };
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -73,6 +75,14 @@ function parseConfig(value: unknown, path: string): Partial<NotifyConfig> {
     }
   }
 
+  if ("allowProjectCommand" in value) {
+    if (typeof value.allowProjectCommand === "boolean") {
+      config.allowProjectCommand = value.allowProjectCommand;
+    } else {
+      warnInvalidField(path, "allowProjectCommand", "a boolean");
+    }
+  }
+
   return config;
 }
 
@@ -96,11 +106,28 @@ function loadConfig(cwd: string): LoadedConfig {
   let merged: NotifyConfig = { ...BUILTIN_DEFAULT_CONFIG };
   let configPath = "<builtin>";
 
-  for (const path of [defaultPath, globalPath, projectPath]) {
+  for (const path of [defaultPath, globalPath]) {
     if (!existsSync(path)) continue;
 
     configPath = path;
     merged = { ...merged, ...readConfigFile(path) };
+  }
+
+  if (existsSync(projectPath)) {
+    configPath = projectPath;
+    const projectConfig = readConfigFile(projectPath);
+    const { allowProjectCommand: _ignored, ...projectOverrides } = projectConfig;
+
+    if (!merged.allowProjectCommand && ("command" in projectOverrides || "args" in projectOverrides)) {
+      console.error(
+        `[simple-notify] Ignoring project-local command/args in ${projectPath}: ` +
+          `set allowProjectCommand=true in global config to allow them`,
+      );
+      delete projectOverrides.command;
+      delete projectOverrides.args;
+    }
+
+    merged = { ...merged, ...projectOverrides };
   }
 
   return { config: merged, configPath };

@@ -1,5 +1,6 @@
 {
   "bell": false,
   "command": "notify-send",
-  "args": ["--app-name=Pi", "Pi [{session}]", "{cwd}"]
+  "args": ["--app-name=Pi", "Pi [{session}]", "{cwd}"],
+  "allowProjectCommand": false
 }

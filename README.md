@@ -55,6 +55,8 @@ The extension loads JSON config files and merges them in this order:
 
 Project-local config overrides global config. Global config overrides packaged defaults. Invalid fields are ignored and logged.
 
+For safety, project-local config cannot override `command` or `args` unless `allowProjectCommand` is enabled in packaged or global config. A project-local `allowProjectCommand` value is ignored.
+
 | Path | Scope |
 |------|-------|
 | `extensions/simple-notify.config.json` | Packaged defaults |
@@ -70,6 +72,7 @@ Project-local config overrides global config. Global config overrides packaged d
 | `bell` | `false` | Write terminal BEL (`\x07`) when notification fires |
 | `command` | `"notify-send"` | Program to execute |
 | `args` | `["--app-name=Pi", "Pi [{session}]", "{cwd}"]` | Arguments passed to `command` |
+| `allowProjectCommand` | `false` | Allow project-local config to override `command` and `args`; only trusted packaged/global config can enable this |
 
 ### Template variables
 
@@ -87,7 +90,8 @@ Default libnotify setup:
 {
   "bell": false,
   "command": "notify-send",
-  "args": ["--app-name=Pi", "Pi [{session}]", "{cwd}"]
+  "args": ["--app-name=Pi", "Pi [{session}]", "{cwd}"],
+  "allowProjectCommand": false
 }
 ```
 
@@ -116,6 +120,14 @@ Notification with sound:
 {
   "command": "sh",
   "args": ["-c", "notify-send 'Pi [{session}]' 'Done!' && paplay /usr/share/sounds/freedesktop/stereo/bell.oga"]
+}
+```
+
+Allow a project's `.pi/simple-notify.config.json` to choose the notification command (put this in global config, not project-local config):
+
+```json
+{
+  "allowProjectCommand": true
 }
 ```
 
