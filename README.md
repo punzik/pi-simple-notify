@@ -1,38 +1,67 @@
-# Pi Simple Notify
+# pi-simple-notify
 
-A [Pi](https://github.com/badlogic/pi-mono) extension that sends a notification when the agent finishes processing and is waiting for user input. Useful when you switch away from the terminal while Pi is working on a long task.
+A [Pi](https://pi.dev) package that sends a desktop notification when the agent finishes processing and is ready for input.
+
+## Why
+
+Use this when you switch away from the terminal while Pi works on a long task.
+
+## Behavior
+
+The package listens for completed agent turns. When a turn ends, it can:
+
+- write a terminal bell (`\x07`);
+- run a configured notification command, such as `notify-send`.
 
 ## Installation
 
+### From git
+
 ```bash
-# Option 1: install as a Pi package
-pi install ./pi-simple-notify
-
-# Option 2: install from git
 pi install git:github.com/punzik/pi-simple-notify
+```
 
-# Option 3: try without installing
-pi -e ./pi-simple-notify
+### From a local checkout
 
-# Option 4: symlink into Pi's extensions directory
-ln -s "$(pwd)/extensions/simple-notify.ts" ~/.pi/agent/extensions/simple-notify.ts
+```bash
+pi install /path/to/pi-simple-notify
+```
+
+### Project-local install
+
+```bash
+pi install -l /path/to/pi-simple-notify
+```
+
+### Try without installing
+
+```bash
+pi -e /path/to/pi-simple-notify
+```
+
+If Pi is already running, reload packages and extensions with:
+
+```text
+/reload
 ```
 
 ## Configuration
 
-The extension loads settings from JSON config files. Project-local config overrides global config, and invalid fields are ignored.
+The extension loads JSON config files and merges them in this order:
 
-Because config files are merged, the `{configPath}` template variable points to the highest-priority existing config file used for the current notification: project-local, then global, then packaged defaults.
+1. packaged defaults;
+2. global config;
+3. project-local config.
+
+Project-local config overrides global config. Global config overrides packaged defaults. Invalid fields are ignored and logged.
 
 | Path | Scope |
 |------|-------|
-| `extensions/simple-notify.config.json` | Packaged defaults, next to the shipped extension file |
-| `~/.pi/agent/simple-notify.config.json` | Global (all projects) |
+| `extensions/simple-notify.config.json` | Packaged defaults |
+| `~/.pi/agent/simple-notify.config.json` | Global, for all projects |
 | `<project>/.pi/simple-notify.config.json` | Project-local |
 
 `~` means your home directory, for example `/home/alice`.
-
-If no user config file exists, the defaults from [`simple-notify.config.json`](extensions/simple-notify.config.json) are used.
 
 ### Fields
 
@@ -40,7 +69,7 @@ If no user config file exists, the defaults from [`simple-notify.config.json`](e
 |-------|---------|-------------|
 | `bell` | `false` | Write terminal BEL (`\x07`) when notification fires |
 | `command` | `"notify-send"` | Program to execute |
-| `args` | `["--app-name=Pi", "Pi [{session}]", "{cwd}"]` | Arguments. `{session}`, `{cwd}`, and `{configPath}` are replaced with actual values |
+| `args` | `["--app-name=Pi", "Pi [{session}]", "{cwd}"]` | Arguments passed to `command` |
 
 ### Template variables
 
@@ -52,7 +81,7 @@ If no user config file exists, the defaults from [`simple-notify.config.json`](e
 
 ### Examples
 
-**Default (libnotify):**
+Default libnotify setup:
 
 ```json
 {
@@ -62,17 +91,7 @@ If no user config file exists, the defaults from [`simple-notify.config.json`](e
 }
 ```
 
-**With terminal bell:**
-
-```json
-{
-  "bell": true,
-  "command": "notify-send",
-  "args": ["--app-name=Pi", "Pi [{session}]", "{cwd}"]
-}
-```
-
-**Terminal bell only:**
+Terminal bell only:
 
 ```json
 {
@@ -82,7 +101,7 @@ If no user config file exists, the defaults from [`simple-notify.config.json`](e
 }
 ```
 
-**macOS (`osascript`):**
+macOS with `osascript`:
 
 ```json
 {
@@ -91,7 +110,7 @@ If no user config file exists, the defaults from [`simple-notify.config.json`](e
 }
 ```
 
-**With sound:**
+Notification with sound:
 
 ```json
 {
@@ -100,11 +119,34 @@ If no user config file exists, the defaults from [`simple-notify.config.json`](e
 }
 ```
 
+## Usage
+
+Install or load the package. It runs automatically for each Pi session.
+
+For the default configuration on Linux, make sure `notify-send` is available in `$PATH`.
+
 ## How it works
 
-The extension subscribes to Pi's `agent_end` event, which fires once per user prompt when the agent loop completes. If `bell` is enabled, it writes BEL (`\x07`) to Pi's stdout before spawning the configured command as a detached, fire-and-forget process so Pi is never blocked waiting for it.
+The extension subscribes to Pi's `agent_end` event, which fires once per user prompt when the agent loop completes. It optionally writes BEL to stdout, then spawns the configured command as a detached fire-and-forget process.
 
-## Requirements
+## Limitations
 
-- **Linux with `notify-send`** (from `libnotify`) — default setup
-- Or any custom notification command available in `$PATH`
+- The default command requires `notify-send` from `libnotify`.
+- Pi does not wait for the notification command to finish.
+- Command failures are logged to stderr, not shown in the Pi UI.
+
+## Package layout
+
+```text
+.
+├── extensions/
+│   ├── simple-notify.ts
+│   └── simple-notify.config.json
+├── LICENSE
+├── package.json
+└── README.md
+```
+
+## License
+
+GPL-3.0-only. See [LICENSE](LICENSE).

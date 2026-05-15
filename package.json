@@ -1,13 +1,16 @@
 {
   "name": "pi-simple-notify",
   "version": "0.1.0",
-  "description": "Pi extension that sends a notification when the agent finishes processing",
+  "description": "Pi extension that sends a notification when the agent is ready for input",
   "license": "GPL-3.0-only",
-  "files": [
-    "extensions/",
-    "README.md",
-    "LICENSE"
-  ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/punzik/pi-simple-notify.git"
+  },
+  "homepage": "https://github.com/punzik/pi-simple-notify#readme",
+  "bugs": {
+    "url": "https://github.com/punzik/pi-simple-notify/issues"
+  },
   "keywords": [
     "pi-package",
     "pi-extension",
@@ -15,17 +18,17 @@
     "notification",
     "notify-send"
   ],
-  "type": "module",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/punzik/pi-simple-notify"
+  "files": [
+    "extensions/",
+    "README.md",
+    "LICENSE"
+  ],
+  "peerDependencies": {
+    "@mariozechner/pi-coding-agent": "*"
   },
   "pi": {
     "extensions": [
-      "./extensions"
+      "./extensions/simple-notify.ts"
     ]
-  },
-  "peerDependencies": {
-    "@mariozechner/pi-coding-agent": "*"
   }
 }
