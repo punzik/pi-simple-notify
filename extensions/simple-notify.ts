@@ -181,13 +181,11 @@ function notifyStatus(
 
 export default function (pi: ExtensionAPI) {
   let loadedConfig = loadConfig(process.cwd());
-  let sessionName = "(unnamed)";
   let cwd = process.cwd();
   const loggedSpawnErrors = new Set<string>();
 
   pi.on("session_start", async (_event, ctx) => {
     loadedConfig = loadConfig(ctx.cwd);
-    sessionName = pi.getSessionName() ?? "(unnamed)";
     cwd = ctx.cwd;
   });
 
@@ -195,6 +193,12 @@ export default function (pi: ExtensionAPI) {
     if (loadedConfig.config.bell) {
       sendTerminalBell();
     }
-    notifyStatus(loadedConfig.config, sessionName, cwd, loadedConfig.configPath, loggedSpawnErrors);
+    notifyStatus(
+      loadedConfig.config,
+      pi.getSessionName() ?? "(unnamed)",
+      cwd,
+      loadedConfig.configPath,
+      loggedSpawnErrors,
+    );
   });
 }
